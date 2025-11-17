@@ -92,6 +92,29 @@ test("Products list contract is valid", async ({ request }) => {
   expect(uniqueIds.size).toBe(products.length);
   expect(uniqueCategories.size).toBeGreaterThan(1);
   expect(uniqueUsertypes.size).toBeGreaterThan(1);
+
+  const actualCategories = Array.from(uniqueCategories).sort();
+  const expectedCategories = [...AllowedCategories].sort();
+  expect(actualCategories).toEqual(expectedCategories);
+});
+
+// 1.2 – Contract test for /brandsList
+test("Brands list returns 200", async ({ request }) => {
+  const response = await request.get(
+    "https://automationexercise.com/api/brandsList"
+  );
+
+  expect(response.status()).toBe(200);
+
+  const contentType = response.headers()["content-type"] || "";
+  expect(contentType).toMatch(/application\/json|text\/html/);
+
+  const json = await response.json();
+
+  expect(json).toBeDefined();
+  expect(typeof json).toBe("object");
+  expect(typeof json.responseCode).toBe("number");
+  expect(json.responseCode).toBe(200);
 });
 
 // 1.2 – Contract test for /getUserDetailByEmail
