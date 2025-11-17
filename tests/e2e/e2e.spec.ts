@@ -4,6 +4,7 @@ import { PageObject } from '../pageObjects/PageObject';
 let po: PageObject;
 const BASE_URL = 'https://automationexercise.com/';
 
+// Clean slate for test
 test.beforeEach(async ({ page, context }) => {
   await context.clearCookies();
 
@@ -15,6 +16,7 @@ test.beforeEach(async ({ page, context }) => {
 
   await page.reload();
 
+  // TO DO: Create a fixture for page object, please... :)
   po = new PageObject(page);
 });
 
@@ -27,10 +29,10 @@ test('Mens category has the expected clothing categories', async ({ page }) => {
   const menCategoryTextsRaw = await menCategoryLocators.allTextContents();
   const menCategoryTexts = menCategoryTextsRaw.map(text => text.trim());
 
+// TO DO: Validate expected categories so we can check them individually and store expect aray at top level 
   await expect(menCategoryLocators).toHaveCount(2);
   expect(menCategoryTexts).toStrictEqual(['Tshirts', 'Jeans']);
 
-  // TO DO: Validate expected categories so we can check them individually 
   await expect(menCategoryLocators.first()).toBeVisible();
 });
 
