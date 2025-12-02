@@ -1,33 +1,37 @@
 import { test, expect } from "@playwright/test";
+import { ApiClient } from "../client/ApiClient";
 
-// 1.1 FIXME
-test("Status Code 200", async ({request}) => {
-    const response = await request.get("https://automationexercise.com/api/productsList");
+let apiClient: ApiClient;
+
+test.beforeEach(async ({ request }) => {
+    apiClient = new ApiClient(request);
+});
+
+test("Product list endpoint returns categories successfully", async ({request}) => {
+    const expectedCategories = ["Tops", "Tshirts", "Dress", "Tops & Shirts", "Jeans", "Saree"];
+    const response = await apiClient.getProductList();
 
     const { responseCode, products } = await response.json();
 
     expect(responseCode).toBe(200);
     expect(products.length).toEqual(34);
-    for (let p of products) {
-        const category = p.category;
-        expect(category.category).toBe("Saree");
-    }
+
+    //Retreive all product categories from the products list.
+    //Validate that categories are not null or empty strings.
+    const categories = products.map((p: any) => {
+        expect(p.category).not.toBeNull();
+        expect(p.category.category).not.toBeNull();
+        expect(p.category.category).toBeTruthy(); 
+        return p.category.category;
+    });
+    const actualCategories = Array.from(new Set(categories));
+    // Validate that all expected categories are present in the actual categories
+    expect(actualCategories.sort()).toEqual(expectedCategories.sort());
 })
 
-// 1.2 FIXME
-test("GET requests succeed", async ({ request }) => {
-    let response = await request.get("https://automationexercise.com/api/productsList");
 
-    const responseCode = (await response.json()).responseCode;
-    expect(responseCode).toBe(200);
-
-    response = await request.get("https://automationexercise.com/api/brandsList");
-
-    const responseCode1 = (await response.json()).responseCode;
-    expect(responseCode1).toEqual(200);
-
-    response = await request.get("https://automationexercise.com/api/getUserDetailByEmail?email=test@test.com");
-
-    const responseCode2 = (await response.json()).responseCode;
-    expect(responseCode2).toEqual(200);
+test("Automation Exercise API Health check", async ({ request }) => {
+    expect((await apiClient.getProductList()).status(), 'Health check failed for getProductList endpoint').toBe(200);
+    expect((await apiClient.getBrandsList()).status(), 'Health check failed for getBrandsList endpoint').toBe(200);
+    expect((await apiClient.getUserDetailByEmail("test@test.com")).status(), 'Health check failed for getUserDetailByEmail').toBe(200) ;
 })
