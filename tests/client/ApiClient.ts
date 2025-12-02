@@ -8,15 +8,15 @@ export class ApiClient {
     }
 
     async getProductList() {
-        return this.requestContext.get('api/productsList');
+        return this.requestContext.get('/api/productsList');
     }
 
     async getBrandsList() {
-        return this.requestContext.get('api/brandsList');
+        return this.requestContext.get('/api/brandsList');
     }
 
     async getUserDetailByEmail(email: string) {
-        return this.requestContext.get(`api/getUserDetailByEmail?email=${email}`);
+        return this.requestContext.get(`/api/getUserDetailByEmail?email=${email}`);
     }
 
 }

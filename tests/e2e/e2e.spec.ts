@@ -1,31 +1,48 @@
 import { test, expect } from '@playwright/test';
-import { PageObject } from '../pageObjects/PageObject';
+import { HomePageObject } from '../pageObjects/HomePageObject';
+import { NavBarPageObject } from '../pageObjects/NavBarPageObject';
+import { ProductPageObject } from '../pageObjects/ProductPageObject';
+let homepage: HomePageObject;
+let navBar: NavBarPageObject;
+let productPage: ProductPageObject; 
 
-// 1.3 FIXME
+test.beforeEach(async ({ page }) => {
+  // initialize page objects
+  homepage = new HomePageObject(page);
+  navBar = new NavBarPageObject(page);
+  productPage = new ProductPageObject(page);
+
+  //go to home page
+  await page.goto('/');
+});
+
+// 1.3
 test('Mens category has the expected clothing categories', async ({ page }) => {
-  await page.goto('https://automationexercise.com/');
-
-  const po = new PageObject(page);
-
-  await page.locator(po.collapse).all();
+  
+  // Expand Men category
+  await homepage.expandMen();
 
   //Expect the Tshirts and Jeans category
-  const categories = await page.locator(po.menCategories).all();
-
+  const categories = await page.locator(homepage.menCategories).all();
   await expect(categories.length).toEqual(2);
+
   let menCategories = [];
   for (let c of categories) {
     menCategories.push((await c.textContent())?.trim());
   }
 
-  await expect(menCategories).toBe(["TSHIRTS", "JEANS"]);
+  await expect(menCategories).toStrictEqual(["Tshirts", "Jeans"]);
   
   for (let c of categories) {
     await expect(c).toBeVisible();
   }
 });
 
-// 1.4 FIXME
-test.skip("A user can successfully add an item to their cart", async () => {
-  
-})
+// 1.4 
+test('Product can be added to cart successfully', async ({ page }) => {
+  await navBar.navigateToProducts();
+  await productPage.addToCartByProductId(1);
+  await productPage.verifyProductAddedToCartModalVisible();
+
+  //TODO: Further validations can be added to verify cart count, cart details by navigating to cart page
+});

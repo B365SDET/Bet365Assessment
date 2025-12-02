@@ -7,6 +7,7 @@ test.beforeEach(async ({ request }) => {
     apiClient = new ApiClient(request);
 });
 
+// 1.1
 test("Product list endpoint returns categories successfully", async ({request}) => {
     const expectedCategories = ["Tops", "Tshirts", "Dress", "Tops & Shirts", "Jeans", "Saree"];
     const response = await apiClient.getProductList();
@@ -29,7 +30,7 @@ test("Product list endpoint returns categories successfully", async ({request}) 
     expect(actualCategories.sort()).toEqual(expectedCategories.sort());
 })
 
-
+// 1.2
 test("Automation Exercise API Health check", async ({ request }) => {
     expect((await apiClient.getProductList()).status(), 'Health check failed for getProductList endpoint').toBe(200);
     expect((await apiClient.getBrandsList()).status(), 'Health check failed for getBrandsList endpoint').toBe(200);
