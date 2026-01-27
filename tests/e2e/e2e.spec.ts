@@ -15,11 +15,12 @@ test('Mens category has the expected clothing categories', async ({ page }) => {
   await expect(categories.length).toEqual(2);
   let menCategories = [];
   for (let c of categories) {
-    menCategories.push((await c.textContent())?.trim());
+    menCategories.push((await c.textContent())?.toUpperCase().trim());
   }
 
-  await expect(menCategories).toBe(["TSHIRTS", "JEANS"]);
+   expect(menCategories).toStrictEqual(["TSHIRTS", "JEANS"]);
   
+   await page.locator(po.men).click();
   for (let c of categories) {
     await expect(c).toBeVisible();
   }
