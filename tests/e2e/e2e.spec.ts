@@ -26,6 +26,17 @@ test('Mens category has the expected clothing categories', async ({ page }) => {
 });
 
 // 1.4 FIXME
-test.skip("A user can successfully add an item to their cart", async () => {
-  
+test("A user can successfully add an item to their cart", async ({ page }) => {
+  await page.goto('https://automationexercise.com/');
+
+  const po = new PageObject(page);
+
+  await page.locator(po.collapse).all();
+
+    await expect(po.menTshirtsProductLink).toBeVisible();
+    await po.menTshirtsProductLink.click();
+
+    await expect(po.addToCartButton).toBeVisible();
+    await po.addToCartButton.click();
+
 })
