@@ -12,13 +12,13 @@ test('Mens category has the expected clothing categories', async ({ page }) => {
   //Expect the Tshirts and Jeans category
   const categories = await page.locator(po.menCategories).all();
 
-  await expect(categories.length).toEqual(2);
-  let menCategories = [];
-  for (let c of categories) {
-    menCategories.push((await c.textContent())?.trim());
+  expect(categories.length).toEqual(2);
+  const menCategories: string[] = [];
+  for (const c of categories) {
+    menCategories.push((await c.textContent())?.trim() ?? '');
   }
 
-  await expect(menCategories).toBe(["TSHIRTS", "JEANS"]);
+  expect(menCategories).toEqual(['Tshirts', 'Jeans']);
   
   for (let c of categories) {
     await expect(c).toBeVisible();
