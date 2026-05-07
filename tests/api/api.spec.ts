@@ -1,33 +1,56 @@
 import { test, expect } from "@playwright/test";
+import { ApiEndpoints } from "../pageObjects/ApiEndpoints";
 
-// 1.1 FIXME
-test("Status Code 200", async ({request}) => {
-    const response = await request.get("https://automationexercise.com/api/productsList");
+// 1.1
+test("GET /productsList returns expected product categories", async ({ request }) => {
+  const response = await request.get(ApiEndpoints.PRODUCTS_LIST);
 
-    const { responseCode, products } = await response.json();
+  await expect(response).toBeOK();
 
-    expect(responseCode).toBe(200);
-    expect(products.length).toEqual(34);
-    for (let p of products) {
-        const category = p.category;
-        expect(category.category).toBe("Saree");
-    }
-})
+  const EXPECTED_CATEGORIES = [
+    "Tops",
+    "Tshirts",
+    "Dress",
+    "Tops & Shirts",
+    "Jeans",
+    "Saree",
+  ];
 
-// 1.2 FIXME
-test("GET requests succeed", async ({ request }) => {
-    let response = await request.get("https://automationexercise.com/api/productsList");
+  const { responseCode, products } = await response.json();
 
-    const responseCode = (await response.json()).responseCode;
-    expect(responseCode).toBe(200);
+  expect(responseCode).toBe(200);
 
-    response = await request.get("https://automationexercise.com/api/brandsList");
+  const categories = [...new Set(products.map(product => product.category.category))];
+  
+  expect(categories).toEqual(
+    expect.arrayContaining(EXPECTED_CATEGORIES),
+  );
+});
 
-    const responseCode1 = (await response.json()).responseCode;
-    expect(responseCode1).toEqual(200);
+// 1.2
+test.describe("GET endpoints return 200 response code", () => {
+  const endpointCases = [
+    {
+      name: "productsList",
+      endpoint: ApiEndpoints.PRODUCTS_LIST,
+    },
+    {
+      name: "brandsList",
+      endpoint: ApiEndpoints.BRANDS_LIST,
+    },
+    {
+      name: "user detail by email",
+      endpoint: `${ApiEndpoints.USER_DETAIL_BY_EMAIL}?email=test@test.com`,
+    },
+  ];
 
-    response = await request.get("https://automationexercise.com/api/getUserDetailByEmail?email=test@test.com");
+  for (const { name, endpoint } of endpointCases) {
+    test(`GET ${name} returns responseCode 200`, async ({ request }) => {
+      const response = await request.get(endpoint);
+      await expect(response).toBeOK();
 
-    const responseCode2 = (await response.json()).responseCode;
-    expect(responseCode2).toEqual(200);
-})
+      const { responseCode } = await response.json();
+      expect(responseCode).toBe(200);
+    });
+  }
+});
