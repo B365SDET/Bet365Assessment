@@ -7,27 +7,27 @@ test("Status Code 200", async ({request}) => {
     const { responseCode, products } = await response.json();
 
     expect(responseCode).toBe(200);
-    expect(products.length).toEqual(34);
-    for (let p of products) {
-        const category = p.category;
-        expect(category.category).toBe("Saree");
+    // i want to get all the categories that are returned by the endpoint
+    const actualcategory = new Set(products.map((p: any) => p.category.category));
+
+    //from the requirement document, we know that the expected categories are : `Tops`, `Tshirts`, `Dress`, `Tops & Shirts`, `Jeans`, `Saree`
+    const expectedcategory = [`Tops`, `Tshirts`, `Dress`, `Tops & Shirts`, `Jeans`, `Saree`];
+    for (const category of expectedcategory) {
+        expect(actualcategory).toContain(category);
     }
 })
 
 // 1.2 FIXME
-test("GET requests succeed", async ({ request }) => {
-    let response = await request.get("https://automationexercise.com/api/productsList");
+const endpoints = [
+    "/api/productsList",
+    "/api/brandsList",
+    "/api/getUserDetailByEmail?email=test@test.com"
+];
 
-    const responseCode = (await response.json()).responseCode;
-    expect(responseCode).toBe(200);
-
-    response = await request.get("https://automationexercise.com/api/brandsList");
-
-    const responseCode1 = (await response.json()).responseCode;
-    expect(responseCode1).toEqual(200);
-
-    response = await request.get("https://automationexercise.com/api/getUserDetailByEmail?email=test@test.com");
-
-    const responseCode2 = (await response.json()).responseCode;
-    expect(responseCode2).toEqual(200);
-})
+for (const endpoint of endpoints) {
+    test(`GET ${endpoint} returns status code 200`, async ({ request }) => {
+        const response = await request.get(`https://automationexercise.com${endpoint}`);
+        const {responseCode} = await response.json();
+        expect(responseCode).toBe(200);
+    });
+}

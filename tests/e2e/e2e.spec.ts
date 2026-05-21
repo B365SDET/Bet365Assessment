@@ -6,26 +6,43 @@ test('Mens category has the expected clothing categories', async ({ page }) => {
   await page.goto('https://automationexercise.com/');
 
   const po = new PageObject(page);
+  const categories = page.locator(po.menCategories);
 
-  await page.locator(po.collapse).all();
+  // The Men sub-categories sit in a collapsed Bootstrap accordion, and the page
+  // injects ads/late JS that can swallow the first click before the collapse
+  // handler is bound. Retry the click until the panel actually expands —
+  await expect(async () => {
+    await page.locator(po.menToggle).click();
+    await expect(categories.first()).toBeVisible({ timeout: 2000 });
+  }).toPass({ timeout: 15000 });
 
-  //Expect the Tshirts and Jeans category
-  const categories = await page.locator(po.menCategories).all();
+  // toHaveText compares the element's text content (Tshirts/Jeans),
+  // not the CSS-uppercased display text. It also asserts the count is 2.
+  await expect(categories).toHaveText(["Tshirts", "Jeans"]);
 
-  await expect(categories.length).toEqual(2);
-  let menCategories = [];
-  for (let c of categories) {
-    menCategories.push((await c.textContent())?.trim());
-  }
-
-  await expect(menCategories).toBe(["TSHIRTS", "JEANS"]);
-  
-  for (let c of categories) {
-    await expect(c).toBeVisible();
-  }
+  // The requirement says the categories should be visible, so assert that too.
+  await expect(categories.first()).toBeVisible();
+  await expect(categories.last()).toBeVisible();
 });
 
 // 1.4 FIXME
-test.skip("A user can successfully add an item to their cart", async () => {
-  
-})
+test("A user can successfully add an item to their cart", async ({ page }) => {
+  await page.goto('https://automationexercise.com/');
+
+  // Pick the first product on the home page and remember its name.
+  const product = page.locator('.features_items .product-image-wrapper').first();
+  const productName = (await product.locator('.productinfo p').first().textContent())?.trim();
+  expect(productName).toBeTruthy();
+
+  // Add it to the cart via the product's "Add to cart" button.
+  await product.locator('a.add-to-cart').first().click();
+
+  // A confirmation modal appears — use its link to go to the cart.
+  const modal = page.locator('#cartModal');
+  await expect(modal).toBeVisible();
+  await modal.getByRole('link', { name: 'View Cart' }).click();
+
+  // The product should now be listed in the cart.
+  await expect(page).toHaveURL(/view_cart/);
+  await expect(page.locator('#cart_info')).toContainText(productName!);
+});
