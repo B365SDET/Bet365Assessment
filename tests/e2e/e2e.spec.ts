@@ -1,31 +1,32 @@
-import { test, expect } from '@playwright/test';
-import { PageObject } from '../pageObjects/PageObject';
+import { test, expect } from '../fixtures';
+import { CartPage } from '../pages/uiPages/cart.page';
 
 // 1.3 FIXME
-test('Mens category has the expected clothing categories', async ({ page }) => {
-  await page.goto('https://automationexercise.com/');
+// Applied Page Object Model
+// Added utils and fixtures to support the E2E tests
 
-  const po = new PageObject(page);
+test.describe('AutomationExercise E2E', () => {
+  test('Mens category has the expected clothing categories', async ({ home }) => {
+    // Open the men's category and verify the expected clothing categories are present.
+    await home.openMenCategory();
 
-  await page.locator(po.collapse).all();
+    const menCategories = await home.getMenCategoryNames();
+    expect(menCategories).toEqual(['TSHIRTS', 'JEANS']);
 
-  //Expect the Tshirts and Jeans category
-  const categories = await page.locator(po.menCategories).all();
+    expect(await home.isMenCategoryVisible('TSHIRTS')).toBe(true);
+    expect(await home.isMenCategoryVisible('JEANS')).toBe(true);
+  });
 
-  await expect(categories.length).toEqual(2);
-  let menCategories = [];
-  for (let c of categories) {
-    menCategories.push((await c.textContent())?.trim());
-  }
+  // 1.4 FIXME
+  test('A user can successfully add an item to their cart', async ({ page, home }) => {
+    // Add an item to the cart, and verify that the cart has at least one item.
+    await home.addFirstProductToCartOnHome();
 
-  await expect(menCategories).toBe(["TSHIRTS", "JEANS"]);
-  
-  for (let c of categories) {
-    await expect(c).toBeVisible();
-  }
+    const cart = new CartPage(page);
+    await cart.open();
+
+    const cartCount = await cart.getItemCount();
+    expect(cartCount).toBeGreaterThan(0);
+  });
 });
 
-// 1.4 FIXME
-test.skip("A user can successfully add an item to their cart", async () => {
-  
-})

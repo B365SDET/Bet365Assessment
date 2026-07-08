@@ -1,33 +1,41 @@
 import { test, expect } from "@playwright/test";
+import { AutomationExerciseService } from '../pages/apiPages/automationexercise-service';
 
 // 1.1 FIXME
-test("Status Code 200", async ({request}) => {
-    const response = await request.get("https://automationexercise.com/api/productsList");
+test.describe('AutomationExercise API', () => {
+  test('Products API returns valid data', async ({ request }) => {
+    const service = new AutomationExerciseService(request);
+    const body = await service.fetchProducts();
 
-    const { responseCode, products } = await response.json();
+    // Assert that the 'products' property in the response body is an array.
+   // This verifies the basic structure of the returned data.
+    expect(Array.isArray(body.products)).toBe(true);
+    // Assert that the 'products' array contains at least one product.
+    expect(body.products.length).toBeGreaterThan(0);
 
-    expect(responseCode).toBe(200);
-    expect(products.length).toEqual(34);
-    for (let p of products) {
-        const category = p.category;
-        expect(category.category).toBe("Saree");
-    }
-})
+    const expectedCategories = [
+      'Tops', 
+      'Tshirts', 
+      'Dress', 
+      'Tops & Shirts',
+       'Jeans', 
+       'Saree'];
+       
+    const actualCategories = [...new Set(body.products.map((p) => p?.category?.category))];
+    // Assert that the actual categories from the products match the expected categories.
+    expect(actualCategories.sort()).toEqual(expectedCategories.sort()); 
 
-// 1.2 FIXME
-test("GET requests succeed", async ({ request }) => {
-    let response = await request.get("https://automationexercise.com/api/productsList");
+    // Filter the 'products' array to find all products where the category name is 'Saree'.
+    const sarees = body.products.filter((p) => p.category.category === 'Saree');
+    expect(sarees.length).toBeGreaterThan(0);
+  });
 
-    const responseCode = (await response.json()).responseCode;
-    expect(responseCode).toBe(200);
-
-    response = await request.get("https://automationexercise.com/api/brandsList");
-
-    const responseCode1 = (await response.json()).responseCode;
-    expect(responseCode1).toEqual(200);
-
-    response = await request.get("https://automationexercise.com/api/getUserDetailByEmail?email=test@test.com");
-
-    const responseCode2 = (await response.json()).responseCode;
-    expect(responseCode2).toEqual(200);
-})
+  // 1.2 FIXME 
+  // Validate GET endpoints using the service
+  test('All GET endpoints return successful responses', async ({ request }) => {
+    const service = new AutomationExerciseService(request);
+    AutomationExerciseService.assert200(await service.fetchProducts());
+    AutomationExerciseService.assert200(await service.fetchBrands());
+    AutomationExerciseService.assert200(await service.fetchUserByEmail('test@test.com'));
+  });
+});
