@@ -8,6 +8,10 @@ export class PageObject {
     readonly jeansLink: Locator;
     readonly menCategoryLink: Locator;
 
+    readonly addFirstProductToCartBtn: Locator;
+    readonly viewCartLink: Locator;
+    readonly cartRows: Locator;
+
     constructor(page: Page) {
         this.page = page;
 
@@ -16,6 +20,9 @@ export class PageObject {
         this.jeansLink = page.getByRole('link', { name: 'Jeans'});
         this.menCategoryLink = page.locator('#Men').getByRole('link');
 
+        this.addFirstProductToCartBtn = page.getByText('Add to cart').first();
+        this.viewCartLink = page.getByRole('link', { name: 'View Cart'});
+        this.cartRows = page.locator('#cart_info_table tbody tr');
     }
 
     async goto() {
@@ -28,5 +35,13 @@ export class PageObject {
 
     async viewMenCategories() {
         await this.menLink.click();
+    }
+
+    async addFirstProductToCart() {
+        await this.addFirstProductToCartBtn.click();
+    }
+
+    async viewCart() {
+        await this.viewCartLink.click();
     }
 }

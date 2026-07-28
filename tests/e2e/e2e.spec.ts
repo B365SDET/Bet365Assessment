@@ -20,6 +20,14 @@ test('Mens category has the expected clothing categories', async ({ page }) => {
 });
 
 // 1.4 FIXME
-test.skip("A user can successfully add an item to their cart", async () => {
-  
-})
+test("A user can successfully add an item to their cart", async ({ page }) => {
+  const homePage = new PageObject(page);
+
+  await homePage.goto();
+  await homePage.addFirstProductToCart();
+  await homePage.viewCart();
+
+  // Expect product to be visible in the shopping cart
+  await expect(page.getByRole('link', { name: 'Blue Top'})).toBeVisible();
+  await expect(homePage.cartRows).toHaveCount(1);
+});
