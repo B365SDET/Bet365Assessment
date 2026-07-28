@@ -28,19 +28,44 @@ test("productsList endpoint returns all required categories", async ({request}) 
 });
 
 // 1.2 FIXME
-test("GET requests succeed", async ({ request }) => {
-    let response = await request.get("https://automationexercise.com/api/productsList");
+test("GET productsList request returns a 200 response code", async ({ request }) => {
+    const response = await request.get("api/productsList");
+    expect(response.status()).toBe(200);
 
-    const responseCode = (await response.json()).responseCode;
+    const { responseCode } = (await response.json());
     expect(responseCode).toBe(200);
+});
 
-    response = await request.get("https://automationexercise.com/api/brandsList");
+test("GET brandsList request returns a 200 response code", async ({ request }) => {
+    const response = await request.get("api/brandsList");
+    expect(response.status()).toBe(200);
 
-    const responseCode1 = (await response.json()).responseCode;
-    expect(responseCode1).toEqual(200);
+    const { responseCode } = (await response.json());
+    expect(responseCode).toBe(200);
+});
 
-    response = await request.get("https://automationexercise.com/api/getUserDetailByEmail?email=test@test.com");
+test("GET getUserDetailByEmail request with email=test@test.com returns a 200 response code", async ({ request }) => {
+    const response = await request.get("api/getUserDetailByEmail?email=test@test.com");
+    expect(response.status()).toBe(200);
 
-    const responseCode2 = (await response.json()).responseCode;
-    expect(responseCode2).toEqual(200);
-})
+    const { responseCode } = (await response.json());
+    expect(responseCode).toBe(200);
+});
+
+test("GET getUserDetailByEmail request with an unregistered email returns a 404 responseCode", async ({ request }) => {
+    const response = await request.get("api/getUserDetailByEmail?email=doesnotexist@nope.com");
+    expect(response.status()).toBe(200);
+
+    const { responseCode, message } = (await response.json());
+    expect(responseCode).toBe(404);
+    expect(message).toContain("Account not found");
+});
+
+test("GET getUserDetailByEmail request without an email returns a 400 responseCode", async ({ request }) => {
+    const response = await request.get("api/getUserDetailByEmail");
+    expect(response.status()).toBe(200);
+
+    const { responseCode, message } = (await response.json());
+    expect(responseCode).toBe(400);
+    expect(message).toContain("email parameter is missing");
+});
