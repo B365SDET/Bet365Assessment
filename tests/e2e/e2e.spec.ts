@@ -2,27 +2,21 @@ import { test, expect } from '@playwright/test';
 import { PageObject } from '../pageObjects/PageObject';
 
 // 1.3 FIXME
+test.beforeEach(async ({ page }) => {
+  const homePage = new PageObject(page);
+  await homePage.blockAds();
+});
+
 test('Mens category has the expected clothing categories', async ({ page }) => {
-  await page.goto('https://automationexercise.com/');
+  const homePage = new PageObject(page);
 
-  const po = new PageObject(page);
-
-  await page.locator(po.collapse).all();
+  await homePage.goto();
+  await homePage.viewMenCategories();
 
   //Expect the Tshirts and Jeans category
-  const categories = await page.locator(po.menCategories).all();
-
-  await expect(categories.length).toEqual(2);
-  let menCategories = [];
-  for (let c of categories) {
-    menCategories.push((await c.textContent())?.trim());
-  }
-
-  await expect(menCategories).toBe(["TSHIRTS", "JEANS"]);
-  
-  for (let c of categories) {
-    await expect(c).toBeVisible();
-  }
+  await expect(homePage.tshirtsLink).toBeVisible();
+  await expect(homePage.jeansLink).toBeVisible();
+  await expect(homePage.menCategoryLink).toHaveCount(2);
 });
 
 // 1.4 FIXME
