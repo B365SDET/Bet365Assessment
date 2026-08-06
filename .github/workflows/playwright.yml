@@ -1,0 +1,48 @@
+name: Playwright Tests
+
+# Runs on every push (any branch) and on PRs into master.
+# Note: these E2E tests hit the live site automationexercise.com, so a green
+# run also depends on that third-party site being reachable. Ad blocking and
+# CI retries (see playwright.config.ts) make the suite resilient to transient
+# hiccups.
+on:
+  push:
+  pull_request:
+    branches: [ master ]
+
+# Cancel an in-progress run on the same branch when a newer commit is pushed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Run Playwright tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.11.0
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
