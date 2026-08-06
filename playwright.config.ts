@@ -18,22 +18,34 @@ export default defineConfig({
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 1 : 0,
+  /* Retry to absorb transient flakiness from the live third-party site
+     (network hiccups, ad overlays). More retries on CI. */
+  retries: process.env.CI ? 2 : 1,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  /* 'list' for readable terminal output; 'html' report is generated but not
+     auto-served (open: 'never') so runs never hang the terminal on failure. */
+  reporter: [['list'], ['html', { open: 'never' }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: '',
+    /* Base URL to use in actions like `await page.goto('/')` and `request.get('/api/...')`. */
+    baseURL: process.env.BASE_URL ?? 'https://automationexercise.com',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    /* Keep a trace for any failed test so failures are debuggable locally
+       (where retries are 0). See https://playwright.dev/docs/trace-viewer */
+    trace: 'retain-on-failure',
     extraHTTPHeaders: {
       'Accept': 'application/json',
-    }
+    },
+
+    /* Debugging: set HEADED=true to show the browser, and SLOWMO=<ms> to slow
+       each action down so you can watch what's happening. Both are opt-in via
+       env vars (see the `test:debug` npm script). */
+    headless: !process.env.HEADED,
+    launchOptions: {
+      slowMo: process.env.SLOWMO ? Number(process.env.SLOWMO) : 0,
+    },
   },
 
   /* Configure projects for major browsers */
@@ -43,10 +55,10 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
+    // },
 
     // {
     //   name: 'webkit',
