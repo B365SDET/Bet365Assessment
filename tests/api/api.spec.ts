@@ -1,33 +1,33 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test';
 
-// 1.1 FIXME
-test("Status Code 200", async ({request}) => {
-    const response = await request.get("https://automationexercise.com/api/productsList");
+const apiBaseUrl = 'https://automationexercise.com/api';
 
-    const { responseCode, products } = await response.json();
+test('productsList returns the expected product categories', async ({ request }) => {
+  const response = await request.get(`${apiBaseUrl}/productsList`);
 
-    expect(responseCode).toBe(200);
-    expect(products.length).toEqual(34);
-    for (let p of products) {
-        const category = p.category;
-        expect(category.category).toBe("Saree");
-    }
-})
+  expect(response.status()).toBe(200);
 
-// 1.2 FIXME
-test("GET requests succeed", async ({ request }) => {
-    let response = await request.get("https://automationexercise.com/api/productsList");
+  const { responseCode, products } = await response.json();
+  const actualCategories = [
+    ...new Set<string>(products.map((product: { category: { category: string } }) => product.category.category)),
+  ].sort();
+  const expectedCategories = ['Tops', 'Tshirts', 'Dress', 'Tops & Shirts', 'Jeans', 'Saree'].sort();
 
-    const responseCode = (await response.json()).responseCode;
-    expect(responseCode).toBe(200);
+  expect(responseCode).toBe(200);
+  expect(actualCategories).toEqual(expectedCategories);
+});
 
-    response = await request.get("https://automationexercise.com/api/brandsList");
+const successfulGetRequests = [
+  { name: 'productsList', path: '/productsList' },
+  { name: 'brandsList', path: '/brandsList' },
+  { name: 'getUserDetailByEmail', path: '/getUserDetailByEmail?email=test@test.com' },
+];
 
-    const responseCode1 = (await response.json()).responseCode;
-    expect(responseCode1).toEqual(200);
+for (const { name, path } of successfulGetRequests) {
+  test(`${name} returns a 200 response`, async ({ request }) => {
+    const response = await request.get(`${apiBaseUrl}${path}`);
 
-    response = await request.get("https://automationexercise.com/api/getUserDetailByEmail?email=test@test.com");
-
-    const responseCode2 = (await response.json()).responseCode;
-    expect(responseCode2).toEqual(200);
-})
+    expect(response.status()).toBe(200);
+    expect((await response.json()).responseCode).toBe(200);
+  });
+}

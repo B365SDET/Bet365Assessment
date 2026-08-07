@@ -1,31 +1,29 @@
 import { test, expect } from '@playwright/test';
 import { PageObject } from '../pageObjects/PageObject';
 
-// 1.3 FIXME
 test('Mens category has the expected clothing categories', async ({ page }) => {
-  await page.goto('https://automationexercise.com/');
-
   const po = new PageObject(page);
 
-  await page.locator(po.collapse).all();
+  await page.goto('/');
+  await po.menCategoryToggle.dispatchEvent('click');
 
-  //Expect the Tshirts and Jeans category
-  const categories = await page.locator(po.menCategories).all();
-
-  await expect(categories.length).toEqual(2);
-  let menCategories = [];
-  for (let c of categories) {
-    menCategories.push((await c.textContent())?.trim());
-  }
-
-  await expect(menCategories).toBe(["TSHIRTS", "JEANS"]);
-  
-  for (let c of categories) {
-    await expect(c).toBeVisible();
-  }
+  await expect(po.menCategoryPanel).toBeVisible();
+  await expect(po.menCategories).toHaveCount(2);
+  await expect(po.menCategories).toHaveText([/tshirts/i, /jeans/i]);
 });
 
-// 1.4 FIXME
-test.skip("A user can successfully add an item to their cart", async () => {
-  
-})
+test('A user can successfully add an item to their cart', async ({ page }) => {
+  const po = new PageObject(page);
+
+  await page.goto('/');
+
+  const product = po.productCards.first();
+  const productName = (await product.locator('.productinfo p').innerText()).trim();
+
+  await product.locator('.productinfo .add-to-cart').click();
+  await expect(po.cartModal).toBeVisible();
+  await po.cartModal.getByRole('link', { name: 'View Cart' }).click();
+
+  await expect(po.cartRows).toHaveCount(1);
+  await expect(po.cartRows.first().locator('.cart_description')).toContainText(productName);
+});
