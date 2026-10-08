@@ -6,6 +6,8 @@ export class PageObject {
     readonly men: string = "#Men"
     readonly menCategories: string = "#Men li"
     readonly menToggle: string = "a[href='#Men']";
+    readonly featuredProducts: string = ".features_items .product-image-wrapper";
+    readonly cartModal: string = "#cartModal";
 
     readonly page: Page;
 
@@ -15,5 +17,16 @@ export class PageObject {
 
     async expandMenCategory() {
         await this.page.locator(this.menToggle).click();
+    }
+
+    productCard(productId: number) {
+        return this.page.locator(this.featuredProducts)
+            .filter({ has: this.page.locator(`a[data-product-id="${productId}"]`) });
+    }
+
+    async addProductToCart(productId: number) {
+        const card = this.productCard(productId);
+        await card.hover();
+        await card.locator(".product-overlay .add-to-cart").click();
     }
 }
