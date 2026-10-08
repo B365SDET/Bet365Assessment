@@ -1,15 +1,8 @@
-import { test, expect } from "@playwright/test";
+// `test` comes from ../fixtures, which blocks third-party ad hosts for every test that uses `page`
+// (Google vignette ads hijack link clicks at random and caused the 1.3 flakiness).
+import { test, expect } from "../fixtures";
 import { HomePage } from "../pageObjects/HomePage";
 import { CartPage } from "../pageObjects/CartPage";
-
-// Third-party ads (Google vignette interstitials) hijack link clicks at random and cause flaky failures.
-// They're not part of what we're testing, so block them.
-// Kept as a beforeEach since there's one E2E spec; would move to a custom fixture as the suite grows.
-const AD_HOSTS = /googlesyndication\.com|doubleclick\.net|adtrafficquality\.google|fundingchoicesmessages\.google\.com/;
-
-test.beforeEach(async ({ page }) => {
-  await page.route(AD_HOSTS, route => route.abort());
-});
 
 // 1.3 FIXME (fixed)
 // Root cause: `page.locator(po.collapse).all()` only collected locators and never clicked anything,
