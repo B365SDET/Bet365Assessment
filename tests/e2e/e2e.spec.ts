@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
-import { HomePage } from '../pageObjects/HomePage';
-import { CartPage } from '../pageObjects/CartPage';
+import { test, expect } from "@playwright/test";
+import { HomePage } from "../pageObjects/HomePage";
+import { CartPage } from "../pageObjects/CartPage";
 
 // Third-party ads (Google vignette interstitials) hijack link clicks at random and cause flaky failures.
 // They're not part of what we're testing, so block them.
@@ -19,9 +19,9 @@ test.beforeEach(async ({ page }) => {
 // Now: click the Men toggle, then use web-first assertions (toHaveCount/toHaveText/toBeVisible) that
 // retry while the panel opens, instead of one-time .all()/textContent() snapshots.
 // The expected text matches what the page shows ("Tshirts"); the requirement writes it as "TShirts".
-test('Men category shows the expected clothing categories', async ({ page }) => {
+test("Men category shows the expected clothing categories", async ({ page }) => {
   const homePage = new HomePage(page);
-  await page.goto('https://automationexercise.com/');
+  await page.goto("https://automationexercise.com/");
 
   await homePage.expandMenCategory();
 
@@ -41,10 +41,10 @@ test('Men category shows the expected clothing categories', async ({ page }) => 
 // Each test starts with a fresh browser context, so the cart should contain exactly this one item.
 test("A user can successfully add an item to their cart", async ({ page }) => {
   const homePage = new HomePage(page);
-  const cart = new CartPage(page);
+  const cartPage = new CartPage(page);
   const productId = 1;
 
-  await page.goto('https://automationexercise.com/');
+  await page.goto("https://automationexercise.com/");
 
   // Capture what the homepage shows, so the cart can be checked against it
   const productName = (await homePage.productName(productId).textContent())!.trim();
@@ -54,13 +54,13 @@ test("A user can successfully add an item to their cart", async ({ page }) => {
 
   const modal = page.locator(homePage.cartModal);
   await expect(modal).toBeVisible();
-  await expect(modal).toContainText('Your product has been added to cart.');
-  await modal.getByRole('link', { name: 'View Cart' }).click();
+  await expect(modal).toContainText("Your product has been added to cart.");
+  await modal.getByRole("link", { name: "View Cart" }).click();
 
   await expect(page).toHaveURL(/\/view_cart/);
-  await expect(page.locator(cart.cartRows)).toHaveCount(1);
+  await expect(page.locator(cartPage.cartRows)).toHaveCount(1);
 
-  await expect(cart.productName(productId)).toHaveText(productName);
-  await expect(cart.productPrice(productId)).toHaveText(productPrice);
-  await expect(cart.productQuantity(productId)).toHaveText('1');
+  await expect(cartPage.productName(productId)).toHaveText(productName);
+  await expect(cartPage.productPrice(productId)).toHaveText(productPrice);
+  await expect(cartPage.productQuantity(productId)).toHaveText("1");
 });

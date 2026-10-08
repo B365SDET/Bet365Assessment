@@ -7,7 +7,7 @@ export class HomePage {
     // readonly accordian: string = "#accordian";
     // readonly collapse: string = "[data-parent='#accordian']";
     // readonly men: string = "#Men"
-    readonly menCategories: string = "#Men li"
+    readonly menCategories: string = "#Men li";
     readonly menToggle: string = "a[href='#Men']";
     readonly featuredProducts: string = ".features_items .product-image-wrapper";
     readonly cartModal: string = "#cartModal";
