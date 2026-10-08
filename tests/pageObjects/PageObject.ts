@@ -1,9 +1,12 @@
 import { Page } from "@playwright/test";
 
 export class PageObject {
-    readonly accordian: string = "#accordian";
-    readonly collapse: string = "[data-parent='#accordian']";
-    readonly men: string = "#Men"
+    // Unused after the 1.3/1.4 rewrite: verified no test or page object method references these.
+    // `collapse` matched all three category toggles (Women/Men/Kids) and was only used by the
+    // original no-op `.all()` call; `menToggle` below targets the Men toggle specifically.
+    // readonly accordian: string = "#accordian";
+    // readonly collapse: string = "[data-parent='#accordian']";
+    // readonly men: string = "#Men"
     readonly menCategories: string = "#Men li"
     readonly menToggle: string = "a[href='#Men']";
     readonly featuredProducts: string = ".features_items .product-image-wrapper";
