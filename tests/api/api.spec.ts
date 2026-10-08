@@ -1,10 +1,21 @@
 import { test, expect } from "@playwright/test";
 
-// 1.1 FIXME
+const API_BASE_URL = "https://automationexercise.com/api";
+
+// Note: this API reports some errors as HTTP 200 with the real code in the body's `responseCode`
+// (e.g. POST/PUT/DELETE on productsList return 200 + responseCode 405), so each test checks both,
+// HTTP status first. The original tests only checked the body.
+
+// 1.1
+// Root cause: the original loop asserted every product's category was "Saree", so it failed on the
+// first product (Blue Top = "Tops"). The requirement is about which categories appear in the list,
+// so this compares the unique set of categories, ignoring order.
+// The hardcoded `products.length === 34` was dropped: it isn't in the requirement and breaks
+// whenever the catalog changes.
 test("productsList returns the expected product categories", async ({ request }) => {
     const expectedCategories = ["Tops", "Tshirts", "Dress", "Tops & Shirts", "Jeans", "Saree"];
 
-    const response = await request.get("https://automationexercise.com/api/productsList");
+    const response = await request.get(`${API_BASE_URL}/productsList`);
     expect(response.status()).toBe(200);
 
     const { responseCode, products } = await response.json();
@@ -14,9 +25,11 @@ test("productsList returns the expected product categories", async ({ request })
     expect(actualCategories.sort()).toEqual([...expectedCategories].sort());
 })
 
-// 1.2 FIXME
-const API_BASE_URL = "https://automationexercise.com/api";
-
+// 1.2
+// The original checked all three endpoints in one test, so the first failure hid the others and the
+// report didn't name the broken endpoint. Now each endpoint is its own test, generated from one table
+// (replacing the copy-pasted blocks, the reused `let response`, and numbered variables). Playwright's
+// `params` option builds the query string instead of hand-concatenating it.
 const endpoints = [
     { name: "productsList", path: "/productsList" },
     { name: "brandsList", path: "/brandsList" },

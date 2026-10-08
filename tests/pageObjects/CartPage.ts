@@ -12,4 +12,16 @@ export class CartPage {
     cartRow(productId: number) {
         return this.page.locator(`#product-${productId}`);
     }
+
+    productName(productId: number) {
+        return this.cartRow(productId).locator(".cart_description h4");
+    }
+
+    productPrice(productId: number) {
+        return this.cartRow(productId).locator(".cart_price");
+    }
+
+    productQuantity(productId: number) {
+        return this.cartRow(productId).locator(".cart_quantity");
+    }
 }

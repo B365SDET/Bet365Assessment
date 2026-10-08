@@ -1,6 +1,6 @@
 import { Page } from "@playwright/test";
 
-export class PageObject {
+export class HomePage {
     // Unused after the 1.3/1.4 rewrite: verified no test or page object method references these.
     // `collapse` matched all three category toggles (Women/Men/Kids) and was only used by the
     // original no-op `.all()` call; `menToggle` below targets the Men toggle specifically.
@@ -25,6 +25,15 @@ export class PageObject {
     productCard(productId: number) {
         return this.page.locator(this.featuredProducts)
             .filter({ has: this.page.locator(`a[data-product-id="${productId}"]`) });
+    }
+
+    // Scoped to .productinfo: the hover overlay repeats the same name/price, so a bare `p`/`h2` matches twice
+    productName(productId: number) {
+        return this.productCard(productId).locator(".productinfo p");
+    }
+
+    productPrice(productId: number) {
+        return this.productCard(productId).locator(".productinfo h2");
     }
 
     async addProductToCart(productId: number) {
