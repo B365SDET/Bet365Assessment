@@ -1,27 +1,26 @@
 import { test, expect } from '@playwright/test';
 import { PageObject } from '../pageObjects/PageObject';
 
+// Third-party ads (Google vignette interstitials) hijack link clicks at random and cause flaky failures.
+// They're not part of what we're testing, so block them.
+const AD_HOSTS = /googlesyndication\.com|doubleclick\.net|adtrafficquality\.google|fundingchoicesmessages\.google\.com/;
+
+test.beforeEach(async ({ page }) => {
+  await page.route(AD_HOSTS, route => route.abort());
+});
+
 // 1.3 FIXME
-test('Mens category has the expected clothing categories', async ({ page }) => {
+test('Men category shows the expected clothing categories', async ({ page }) => {
+  const po = new PageObject(page);
   await page.goto('https://automationexercise.com/');
 
-  const po = new PageObject(page);
+  await po.expandMenCategory();
 
-  await page.locator(po.collapse).all();
-
-  //Expect the Tshirts and Jeans category
-  const categories = await page.locator(po.menCategories).all();
-
-  await expect(categories.length).toEqual(2);
-  let menCategories = [];
-  for (let c of categories) {
-    menCategories.push((await c.textContent())?.trim());
-  }
-
-  await expect(menCategories).toBe(["TSHIRTS", "JEANS"]);
-  
-  for (let c of categories) {
-    await expect(c).toBeVisible();
+  const menCategories = page.locator(po.menCategories);
+  await expect(menCategories).toHaveCount(2);
+  await expect(menCategories).toHaveText(["Tshirts", "Jeans"]);
+  for (const category of await menCategories.all()) {
+    await expect(category).toBeVisible();
   }
 });
 
