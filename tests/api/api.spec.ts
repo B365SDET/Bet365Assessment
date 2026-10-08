@@ -6,7 +6,7 @@ const API_BASE_URL = "https://automationexercise.com/api";
 // (e.g. POST/PUT/DELETE on productsList return 200 + responseCode 405), so each test checks both,
 // HTTP status first. The original tests only checked the body.
 
-// 1.1
+// 1.1 FIXME (fixed)
 // Root cause: the original loop asserted every product's category was "Saree", so it failed on the
 // first product (Blue Top = "Tops"). The requirement is about which categories appear in the list,
 // so this compares the unique set of categories, ignoring order.
@@ -23,9 +23,9 @@ test("productsList returns the expected product categories", async ({ request })
 
     const actualCategories = [...new Set(products.map((p: any) => p.category.category))];
     expect(actualCategories.sort()).toEqual([...expectedCategories].sort());
-})
+});
 
-// 1.2
+// 1.2 FIXME (fixed)
 // The original checked all three endpoints in one test, so the first failure hid the others and the
 // report didn't name the broken endpoint. Now each endpoint is its own test, generated from one table
 // (replacing the copy-pasted blocks, the reused `let response`, and numbered variables). Playwright's

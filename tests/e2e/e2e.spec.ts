@@ -11,7 +11,7 @@ test.beforeEach(async ({ page }) => {
   await page.route(AD_HOSTS, route => route.abort());
 });
 
-// 1.3
+// 1.3 FIXME (fixed)
 // Root cause: `page.locator(po.collapse).all()` only collected locators and never clicked anything,
 // so the Men panel stayed collapsed and the "view the mens categories" step never happened.
 // The assertion was also broken: `toBe` on an array compares references (it can never pass), and it
@@ -33,7 +33,7 @@ test('Men category shows the expected clothing categories', async ({ page }) => 
   }
 });
 
-// 1.4
+// 1.4 FIXME (fixed)
 // Adds product 1 from the homepage like a user would (hover the card, click the overlay "Add to cart"),
 // then verifies the cart page, not just the confirmation popup: the popup only proves the click was
 // handled, while the cart page proves the product was added. The name and price are read from the
