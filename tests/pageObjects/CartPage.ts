@@ -1,12 +1,12 @@
-import { Page } from "@playwright/test";
+import { Page, Locator } from "@playwright/test";
 
 export class CartPage {
-    readonly cartRows: string = "#cart_info_table tbody tr";
-
     readonly page: Page;
+    readonly cartRows: Locator;
 
     constructor(page: Page) {
         this.page = page;
+        this.cartRows = page.locator("#cart_info_table tbody tr");
     }
 
     cartRow(productId: number) {

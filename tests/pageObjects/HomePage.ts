@@ -1,29 +1,26 @@
-import { Page } from "@playwright/test";
+import { Page, Locator } from "@playwright/test";
 
 export class HomePage {
-    // Unused after the 1.3/1.4 rewrite: verified no test or page object method references these.
-    // `collapse` matched all three category toggles (Women/Men/Kids) and was only used by the
-    // original no-op `.all()` call; `menToggle` below targets the Men toggle specifically.
-    // readonly accordian: string = "#accordian";
-    // readonly collapse: string = "[data-parent='#accordian']";
-    // readonly men: string = "#Men"
-    readonly menCategories: string = "#Men li";
-    readonly menToggle: string = "a[href='#Men']";
-    readonly featuredProducts: string = ".features_items .product-image-wrapper";
-    readonly cartModal: string = "#cartModal";
-
     readonly page: Page;
+    readonly menCategories: Locator;
+    readonly menToggle: Locator;
+    readonly featuredProducts: Locator;
+    readonly cartModal: Locator;
 
     constructor(page: Page) {
         this.page = page;
+        this.menCategories = page.locator("#Men li");
+        this.menToggle = page.locator("a[href='#Men']");
+        this.featuredProducts = page.locator(".features_items .product-image-wrapper");
+        this.cartModal = page.locator("#cartModal");
     }
 
     async expandMenCategory() {
-        await this.page.locator(this.menToggle).click();
+        await this.menToggle.click();
     }
 
     productCard(productId: number) {
-        return this.page.locator(this.featuredProducts)
+        return this.featuredProducts
             .filter({ has: this.page.locator(`a[data-product-id="${productId}"]`) });
     }
 

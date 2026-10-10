@@ -18,10 +18,9 @@ test("Men category shows the expected clothing categories", async ({ page }) => 
 
   await homePage.expandMenCategory();
 
-  const menCategories = page.locator(homePage.menCategories);
-  await expect(menCategories).toHaveCount(2);
-  await expect(menCategories).toHaveText(["Tshirts", "Jeans"]);
-  for (const category of await menCategories.all()) {
+  await expect(homePage.menCategories).toHaveCount(2);
+  await expect(homePage.menCategories).toHaveText(["Tshirts", "Jeans"]);
+  for (const category of await homePage.menCategories.all()) {
     await expect(category).toBeVisible();
   }
 });
@@ -45,13 +44,12 @@ test("A user can successfully add an item to their cart", async ({ page }) => {
 
   await homePage.addProductToCart(productId);
 
-  const modal = page.locator(homePage.cartModal);
-  await expect(modal).toBeVisible();
-  await expect(modal).toContainText("Your product has been added to cart.");
-  await modal.getByRole("link", { name: "View Cart" }).click();
+  await expect(homePage.cartModal).toBeVisible();
+  await expect(homePage.cartModal).toContainText("Your product has been added to cart.");
+  await homePage.cartModal.getByRole("link", { name: "View Cart" }).click();
 
   await expect(page).toHaveURL(/\/view_cart/);
-  await expect(page.locator(cartPage.cartRows)).toHaveCount(1);
+  await expect(cartPage.cartRows).toHaveCount(1);
 
   await expect(cartPage.productName(productId)).toHaveText(productName);
   await expect(cartPage.productPrice(productId)).toHaveText(productPrice);
