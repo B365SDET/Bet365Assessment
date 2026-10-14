@@ -47,7 +47,7 @@ https://git-scm.com/install/
 View the problems at [ASSESSMENT.md](./ASSESSMENT.md)
 
 ## Running the tests
-The commands to run the specific have already been bundled to run against the chromium browser
+The commands below are bundled as npm scripts. The API tests run once; the E2E tests run on Chromium and Firefox.
 ```shell
 # Runs all the tests
 npm run test 
@@ -55,10 +55,10 @@ npm run test
 # Runs just the API tests
 npm run test:api
 
-# Runs just the E2E tests
+# Runs just the E2E tests (Chromium and Firefox)
 npm run test:e2e
 
-# Run the E2E tests with an interactive browser
+# Run the E2E tests with an interactive browser (Chromium)
 npm run test:e2e:ui
 ```
 

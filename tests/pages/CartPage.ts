@@ -6,7 +6,7 @@ export class CartPage {
 
     constructor(page: Page) {
         this.page = page;
-        this.cartRows = page.locator("#cart_info_table tbody tr");
+        this.cartRows = page.locator("#cart_info_table tbody").getByRole("row");
     }
 
     cartRow(productId: number) {
@@ -14,7 +14,7 @@ export class CartPage {
     }
 
     productName(productId: number) {
-        return this.cartRow(productId).locator(".cart_description h4");
+        return this.cartRow(productId).locator(".cart_description").getByRole("link");
     }
 
     productPrice(productId: number) {
