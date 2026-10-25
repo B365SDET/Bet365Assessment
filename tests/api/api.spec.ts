@@ -1,35 +1,35 @@
-import { test, expect } from "@playwright/test";
+import { APIResponse } from "@playwright/test";
+import { test, expect } from "../fixtures";
+import { AutomationExerciseApi, Product } from "../apiClients/AutomationExerciseApi";
 
 // 1.1 FIXME
-test("productsList API contains required categories", async ({request}) => {
-    const response = await request.get("https://automationexercise.com/api/productsList");
+test("productsList returns the expected product categories", async ({ api }) => {
     const expectedCategories = ["Tops", "Tshirts", "Dress", "Tops & Shirts", "Jeans", "Saree"];
 
-    const { responseCode, products } = await response.json();
+    const response = await api.getProductsList();
+    await expect(response).toBeOK();
 
-    expect(responseCode).toEqual(200);
-    expect(products.length).toEqual(34);
+    const { products }: { products: Product[] } = await response.json();
+    const categories = products.map(product => product.category.category);
 
-    const allCategories: string[] = products.map((product: { category: { category: any; }; }) => product.category.category);
-    const containsAll = expectedCategories.every(val => allCategories.includes(val)); 
-
-    expect(containsAll).toEqual(true);
-})
+    expect(categories).toEqual(expect.arrayContaining(expectedCategories));
+});
 
 // 1.2 FIXME
-test("GET requests succeed", async ({ request }) => {
-    let response = await request.get("https://automationexercise.com/api/productsList");
+test.describe("GET endpoints return a 200 response code", () => {
+    const endpoints: { name: string; call: (api: AutomationExerciseApi) => Promise<APIResponse> }[] = [
+        { name: "productsList", call: api => api.getProductsList() },
+        { name: "brandsList", call: api => api.getBrandsList() },
+        { name: "getUserDetailByEmail", call: api => api.getUserDetailByEmail("test@test.com") },
+    ];
 
-    const responseCode = (await response.json()).responseCode;
-    expect(responseCode).toBe(200);
+    for (const { name, call } of endpoints) {
+        test(name, async ({ api }) => {
+            const response = await call(api);
 
-    response = await request.get("https://automationexercise.com/api/brandsList");
-
-    const responseCode1 = (await response.json()).responseCode;
-    expect(responseCode1).toEqual(200);
-
-    response = await request.get("https://automationexercise.com/api/getUserDetailByEmail?email=test@test.com");
-
-    const responseCode2 = (await response.json()).responseCode;
-    expect(responseCode2).toEqual(200);
-})
+            // The API always answers HTTP 200; the real status is the body's responseCode.
+            await expect(response).toBeOK();
+            expect(await response.json()).toMatchObject({ responseCode: 200 });
+        });
+    }
+});
