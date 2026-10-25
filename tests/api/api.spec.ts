@@ -1,17 +1,19 @@
 import { test, expect } from "@playwright/test";
 
 // 1.1 FIXME
-test("Status Code 200", async ({request}) => {
+test("productsList API contains required categories", async ({request}) => {
     const response = await request.get("https://automationexercise.com/api/productsList");
+    const expectedCategories = ["Tops", "Tshirts", "Dress", "Tops & Shirts", "Jeans", "Saree"];
 
     const { responseCode, products } = await response.json();
 
-    expect(responseCode).toBe(200);
+    expect(responseCode).toEqual(200);
     expect(products.length).toEqual(34);
-    for (let p of products) {
-        const category = p.category;
-        expect(category.category).toBe("Saree");
-    }
+
+    const allCategories: string[] = products.map((product: { category: { category: any; }; }) => product.category.category);
+    const containsAll = expectedCategories.every(val => allCategories.includes(val)); 
+
+    expect(containsAll).toEqual(true);
 })
 
 // 1.2 FIXME
