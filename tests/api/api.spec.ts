@@ -1,33 +1,34 @@
 import { test, expect } from "@playwright/test";
 
+const EXPECTED_CATEGORIES = ["Tops", "Tshirts", "Dress", "Tops & Shirts", "Jeans", "Saree"];
+
 // 1.1 FIXME
-test("Status Code 200", async ({request}) => {
-    const response = await request.get("https://automationexercise.com/api/productsList");
+test("GET productsList returns expected product categories", async ({ request }) => {
+    const response = await request.get("/api/productsList");
+    expect(response.ok()).toBe(true);
 
     const { responseCode, products } = await response.json();
-
     expect(responseCode).toBe(200);
-    expect(products.length).toEqual(34);
-    for (let p of products) {
-        const category = p.category;
-        expect(category.category).toBe("Saree");
-    }
-})
+
+    const categories = new Set(products.map((p: { category: { category: string } }) => p.category.category));
+    expect(categories).toEqual(new Set(EXPECTED_CATEGORIES));
+});
 
 // 1.2 FIXME
-test("GET requests succeed", async ({ request }) => {
-    let response = await request.get("https://automationexercise.com/api/productsList");
+const endpoints = [
+    { name: "productsList", payloadKey: "products" },
+    { name: "brandsList", payloadKey: "brands" },
+    { name: "getUserDetailByEmail", params: { email: "test@test.com" }, payloadKey: "user" },
+];
+// test could be flaky if this user is changed
 
-    const responseCode = (await response.json()).responseCode;
-    expect(responseCode).toBe(200);
+for (const { name, params, payloadKey } of endpoints) {
+    test(`GET ${name} returns a 200 response code`, async ({ request }) => {
+        const response = await request.get(`/api/${name}`, { params });
+        expect(response.ok()).toBe(true);
 
-    response = await request.get("https://automationexercise.com/api/brandsList");
-
-    const responseCode1 = (await response.json()).responseCode;
-    expect(responseCode1).toEqual(200);
-
-    response = await request.get("https://automationexercise.com/api/getUserDetailByEmail?email=test@test.com");
-
-    const responseCode2 = (await response.json()).responseCode;
-    expect(responseCode2).toEqual(200);
-})
+        const body = await response.json();
+        expect(body.responseCode).toBe(200);
+        expect(body).toHaveProperty(payloadKey);
+    });
+}
